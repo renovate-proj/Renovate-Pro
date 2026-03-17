@@ -22,17 +22,32 @@ const submitSurvey = AsyncHandler(async (req, res) => {
         throw new ApiError(400, "At least one room measurement is required");
     }
 
+    // 2b. Check for duplicate survey
+    const existingSurvey = await SurveyData.findOne({ apptid });
+    if (existingSurvey) {
+        throw new ApiError(409, "A survey has already been submitted for this appointment");
+    }
+
     // 3. Generate SHA-256 Checksum for Data Integrity 
     const dataString = JSON.stringify({ apptid, rooms });
     const checksum = crypto.createHash('sha256').update(dataString).digest('hex');
 
-    // 4. Create the Survey Record [cite: 45, 70]
-    const newSurvey = await SurveyData.create({
-        apptid,
-        siteLocation,
-        rooms,
-        checksum // The digital "seal" 
-    });
+    // 4. Create the Survey Record
+    let newSurvey;
+    try {
+        newSurvey = await SurveyData.create({
+            apptid,
+            siteLocation,
+            rooms,
+            checksum
+        });
+    } catch (dbError) {
+        console.error("[Survey Create Error]", dbError.message, dbError.errors);
+        if (dbError.code === 11000) {
+            throw new ApiError(409, "A survey already exists for this appointment");
+        }
+        throw new ApiError(400, `Survey validation failed: ${dbError.message}`);
+    }
 
     const createdSurvey = await SurveyData.findById(newSurvey._id);
 

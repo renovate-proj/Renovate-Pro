@@ -121,5 +121,15 @@ export const updateUserProfile = AsyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, "Account details updated successfully", user));
 });
+// 🟪 Get All Surveyors (for Planner assignment dropdown)
+export const getSurveyors = AsyncHandler(async (req, res) => {
+  if (req.user.role !== 'Planner' && req.user.role !== 'Admin') {
+    throw new ApiError(403, "Access denied: Only Planners can view surveyors");
+  }
 
+  const surveyors = await User.find({ role: 'Surveyor' }).select('-password');
 
+  return res.status(200).json(
+    new ApiResponse(200, "Surveyors fetched successfully", surveyors)
+  );
+});

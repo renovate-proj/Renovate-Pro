@@ -1,13 +1,13 @@
 "use client";
 import React, { useState } from 'react';
-import { Plus, Trash2, Save, Ruler, ArrowRight, Home } from 'lucide-react';
+import { Plus, Trash2, Save, Ruler, ArrowRight, Home, X } from 'lucide-react';
 import api from '../../lib/api';
 
 const SurveyForm = ({ appointmentId, onComplete, onCancel }) => {
     // Structure: Array of Room Objects, locally.
     // We will flattening this before sending to API.
     const [rooms, setRooms] = useState([
-        { id: 1, type: 'Living Room', walls: [{ length: 0, angle: 0, height: 2.4 }] }
+        { id: 1, type: 'Living Room', walls: [{ length: 1, angle: 90, height: 2.4 }] }
     ]);
     const [submitting, setSubmitting] = useState(false);
 
@@ -55,6 +55,16 @@ const SurveyForm = ({ appointmentId, onComplete, onCancel }) => {
     const handleSubmit = async () => {
         setSubmitting(true);
         try {
+            // Validate: all walls must have length > 0
+            const hasInvalidWalls = rooms.some(room =>
+                room.walls.some(wall => wall.length < 0.1 || wall.height < 0.1)
+            );
+            if (hasInvalidWalls) {
+                alert("All walls must have a length and height of at least 0.1m");
+                setSubmitting(false);
+                return;
+            }
+
             // Flatten data for Backend (SurveyData Schema)
             // Schema expects: rooms: [{ room_type, length_m, angle_deg, height_m, features... }]
             const flatData = [];

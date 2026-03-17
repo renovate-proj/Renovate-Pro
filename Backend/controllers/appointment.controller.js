@@ -85,6 +85,7 @@ const updateStatus = AsyncHandler(async (req, res) => {
 // 4. Get My Appointments (Customer)
 const getMyAppointments = AsyncHandler(async (req, res) => {
     const appointments = await Appointment.find({ customer_id: req.user._id })
+        .populate('surveyor_id', 'fullName email')
         .sort({ date_time: 1 });
 
     return res.status(200).json(
@@ -99,7 +100,9 @@ const getSurveyorTasks = AsyncHandler(async (req, res) => {
     const tasks = await Appointment.find({
         surveyor_id: req.user._id,
         status: { $ne: 'Cancelled' }
-    }).sort('date_time');
+    })
+        .populate('customer_id', 'fullName email')
+        .sort('date_time');
 
     return res.status(200).json(
         new ApiResponse(200, "Tasks fetched successfully", tasks)
@@ -111,7 +114,10 @@ const getAllAppointments = AsyncHandler(async (req, res) => {
     if (req.user.role !== 'Admin' && req.user.role !== 'Planner') {
         throw new ApiError(403, "Access denied");
     }
-    const appointments = await Appointment.find().sort({ date_time: -1 });
+    const appointments = await Appointment.find()
+        .populate('customer_id', 'fullName email')
+        .populate('surveyor_id', 'fullName email')
+        .sort({ date_time: -1 });
     return res.status(200).json(
         new ApiResponse(200, "All appointments fetched", appointments)
     );

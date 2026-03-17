@@ -149,7 +149,7 @@ const CustomerDashboard = () => {
                                                         </span>
                                                     </div>
                                                     <p className="font-semibold text-lg text-gray-800">{apt.address}</p>
-                                                    <p className="text-sm text-gray-500 mt-1">Surveyor: {apt.surveyor_id ? "Assigned" : "Pending Assignment"}</p>
+                                                    <p className="text-sm text-gray-500 mt-1">Surveyor: {apt.surveyor_id?.fullName || "Pending Assignment"}</p>
                                                 </div>
                                                 {apt.status === 'Scheduled' && (
                                                     <button className="text-red-500 hover:text-red-700 text-sm font-medium opacity-0 group-hover:opacity-100 transition">
