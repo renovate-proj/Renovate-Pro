@@ -99,7 +99,7 @@ export default function RenovateProLanding() {
             </p>
             <div className="flex gap-4">
               <button
-                onClick={() => router.push("/bookingsurvey")}
+                onClick={() => router.push(user ? "/bookingsurvey" : "/login")}
                 className="bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 font-semibold"
               >
                 Book a Survey
