@@ -132,6 +132,10 @@ export const getSurveyors = AsyncHandler(async (req, res) => {
 
   const surveyors = await User.find({ role: 'Surveyor' }).select('-password');
 
+  return res.status(200).json(
+    new ApiResponse(200, "Surveyors fetched successfully", surveyors)
+  );
+});
 // import crypto from "crypto";
 // import sendEmail from "../utils/sendEmail.js";
 
@@ -251,3 +255,4 @@ export const resetPassword = AsyncHandler(async (req, res) => {
     new ApiResponse(200, "Password reset successful")
   );
 });
+
