@@ -5,6 +5,9 @@ import dotenv from 'dotenv';
 import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import { AsyncHandler } from '../utils/AsyncHandler.js';
+import crypto from "crypto";
+import sendEmail from '../utils/mailer.js';
+// import sendEmail from "../utils/sendEmail.js"; // adjust path if needed
 
 dotenv.config();
 
@@ -123,3 +126,122 @@ export const updateUserProfile = AsyncHandler(async (req, res) => {
 });
 
 
+// import crypto from "crypto";
+// import sendEmail from "../utils/sendEmail.js";
+
+export const forgotPassword = AsyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    throw new ApiError(400, "Email is required");
+  }
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  // 🔢 Generate 4-digit OTP
+  const otp = Math.floor(1000 + Math.random() * 9000).toString();
+
+  // ❌ No hashing — store directly
+  user.resetPasswordToken = otp;
+  user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 min
+
+  await user.save({ validateBeforeSave: false });
+
+  // 📧 Email message
+  const message = `
+Hello,
+
+Your OTP for password reset is: ${otp}
+
+This OTP will expire in 15 minutes.
+
+If you did not request this, please ignore this email.
+`;
+
+  try {
+    await sendEmail(user.email, "Password Reset OTP", message);
+
+    return res.status(200).json(
+      new ApiResponse(200, "OTP sent to your email")
+    );
+  } catch (error) {
+    // Cleanup if email fails
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save({ validateBeforeSave: false });
+
+    throw new ApiError(500, "Email could not be sent");
+  }
+});
+
+
+
+
+export const verifyOtp = AsyncHandler(async (req, res) => {
+  const { email, otp } = req.body;
+
+  // Validation
+  if (!email || !otp) {
+    throw new ApiError(400, "Email and OTP are required");
+  }
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  // ✅ Check OTP + expiry
+  if (
+    user.resetPasswordToken !== otp ||
+    user.resetPasswordExpire < Date.now()
+  ) {
+    throw new ApiError(400, "Invalid or expired OTP");
+  }
+
+  return res.status(200).json(
+    new ApiResponse(200, "OTP verified successfully")
+  );
+});
+
+
+export const resetPassword = AsyncHandler(async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  // Validation
+  if (!email || !newPassword) {
+    throw new ApiError(400, "Email and new password are required");
+  }
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  // ✅ Verify OTP again (for safety)
+  // if (
+  //   user.resetPasswordToken !== otp ||
+  //   user.resetPasswordExpire < Date.now()
+  // ) {
+  //   throw new ApiError(400, "Invalid or expired OTP");
+  // }
+
+  // 🔐 Set new password (will be hashed by pre-save hook)
+  user.password = newPassword;
+
+  // 🧹 Clear OTP fields
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
+
+  await user.save();
+
+  return res.status(200).json(
+    new ApiResponse(200, "Password reset successful")
+  );
+});

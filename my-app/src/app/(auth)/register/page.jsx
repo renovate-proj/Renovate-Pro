@@ -4,9 +4,11 @@ import { useState } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import api from '../../../lib/api';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function RegisterPage() {
     const { login } = useAuth();
+    const router = useRouter();
     const [formData, setFormData] = useState({
         fullName: '',
         email: '',
@@ -25,8 +27,11 @@ export default function RegisterPage() {
             // 1. Register
             await api.post('/auth/register', formData);
 
+            router.push('/login');
+
             // 2. Auto Login
-            await login(formData.email, formData.password);
+            // await login(formData.email, formData.password);
+
 
         } catch (err) {
             setError(err.response?.data?.message || 'Registration failed');

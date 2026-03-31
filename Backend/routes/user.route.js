@@ -1,11 +1,14 @@
 import express from 'express';
-import { registerUser, loginUser, getUserProfile, updateUserProfile } from '../controllers/user.controller.js';
+import { registerUser, loginUser, getUserProfile, updateUserProfile,forgotPassword ,verifyOtp,resetPassword} from '../controllers/user.controller.js';
 import { verifyJWT } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
 router.post('/register', registerUser);
 router.post('/login', loginUser);
+router.post('/forgotpassword', forgotPassword);
+router.post('/verifyotp', verifyOtp);
+router.post('/resetpassword', resetPassword);
 
 // Secured Routes
 router.route("/me").get(verifyJWT, getUserProfile);
