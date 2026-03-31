@@ -27,7 +27,7 @@ const PlannerDashboard = () => {
       try {
         const [apptRes, survRes] = await Promise.all([
           api.get('/appointments/all'),
-          api.get('/users/surveyors')
+          api.get('/auth/surveyors')
         ]);
         setProjects(apptRes.data.data);
         setSurveyors(survRes.data.data);
@@ -133,14 +133,14 @@ const PlannerDashboard = () => {
 
                 <h3 className="font-semibold text-gray-900 mb-1 truncate" title={project.address}>{project.address}</h3>
                 <p className="text-sm text-gray-600 mb-4 flex items-center gap-1">
-                  <User className="h-3 w-3 shrink-0" /> <span className="truncate">Customer ID: {project.customer_id.substring(0, 8)}...</span>
+                  <User className="h-3 w-3 shrink-0" /> <span className="truncate">Customer: {project.customer_id?.fullName || 'Unknown'}</span>
                 </p>
 
                 <div className="mt-auto flex items-center justify-between border-t pt-3">
                   <div className="flex items-center gap-2 min-w-0">
                     <Briefcase className="h-4 w-4 text-gray-400 shrink-0" />
                     <span className="text-sm text-gray-700 truncate">
-                      {project.surveyor_id ? "Surveyor Assigned" : "Unassigned"}
+                      {project.surveyor_id ? project.surveyor_id.fullName : "Unassigned"}
                     </span>
                   </div>
                   <div className="flex gap-2 ml-2 shrink-0">

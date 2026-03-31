@@ -17,7 +17,7 @@ const SurveyorDashboard = () => {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const res = await api.get('/appointments/my'); // Returns appointments assigned to this surveyor
+        const res = await api.get('/appointments/tasks'); // Returns appointments assigned to this surveyor
         setTasks(res.data.data);
       } catch (error) {
         console.error("Failed to fetch tasks", error);
@@ -34,7 +34,7 @@ const SurveyorDashboard = () => {
       await api.patch(`/appointments/${selectedTask._id}/status`, { status: "Completed" });
 
       // Refresh
-      const res = await api.get('/appointments/my');
+      const res = await api.get('/appointments/tasks');
       setTasks(res.data.data);
       setShowCompleteModal(false);
       setSelectedTask(null);
@@ -104,6 +104,9 @@ const SurveyorDashboard = () => {
                     <p className="text-sm text-gray-500 flex items-center gap-1">
                       <Calendar className="h-3 w-3" /> {new Date(task.date_time).toLocaleDateString()}
                     </p>
+                    {task.customer_id?.fullName && (
+                      <p className="text-sm text-gray-400 mt-1">Customer: {task.customer_id.fullName}</p>
+                    )}
                   </div>
                 ))}
               </div>

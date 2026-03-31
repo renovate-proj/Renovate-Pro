@@ -13,5 +13,6 @@ router.post('/resetpassword', resetPassword);
 // Secured Routes
 router.route("/me").get(verifyJWT, getUserProfile);
 router.route("/update-account").patch(verifyJWT, updateUserProfile);
+router.route("/surveyors").get(verifyJWT, getSurveyors);
 
 export default router;
