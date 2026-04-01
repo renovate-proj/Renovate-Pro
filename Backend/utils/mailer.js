@@ -1,31 +1,66 @@
+// import nodemailer from 'nodemailer';
+
+
+// const transporter = nodemailer.createTransport({
+//     service: 'gmail', // Use 'gmail' as the service for Gmail accounts
+//     secure:true,
+//     port:465,
+//     auth: {
+//         user: "renovatepro27@gmail.com", // Your email address
+//         pass: "tzdz cwin rouo xbaj" // Your email password or app-specific password
+//     },
+// });
+
+// // Function to send an email
+// const sendEmail = async (to, subject, text) => {
+//     const mailOptions = {
+//         from: process.env.EMAIL_USER, // Sender address (your email)
+//         to, // Recipient address
+//         subject, // Email subject
+//         text, // Email body
+//     };
+
+//     try {
+//         await transporter.sendMail(mailOptions);
+//         console.log('Email sent successfully');
+//     } catch (error) {
+//         console.error('Error sending email:', error);
+//     }
+// };
+
+// export default sendEmail;
+
+
+
 import nodemailer from 'nodemailer';
 
+
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
+    service: 'gmail', // Use 'gmail' as the service for Gmail accounts
+    secure:true,
+    port:465,
+    auth: {
+        user: "khanebadat3107@gmail.com", // Your email address
+        pass: "qqqi onyh tilj dsmu" // Your email password or app-specific password
+    },
 });
 
 // Function to send an email
 const sendEmail = async (to, subject, text) => {
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to,
-    subject,
-    text,
-  };
+    const mailOptions = {
+        from: process.env.EMAIL_USER, // Sender address (your email)
+        to, // Recipient address
+        subject, // Email subject
+        text, // Email body
+    };
 
-  try {
-    await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully');
-  } catch (error) {
-    console.error('Email Error:', error); // 👈 VERY IMPORTANT
-    throw error; // 👈 THIS WAS MISSING
-  }
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log('Email sent successfully');
+    } catch (error) {
+        console.error('Error sending email:', error);
+    }
 };
 
 export default sendEmail;
+
